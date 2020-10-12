@@ -1,0 +1,222 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+    <xacro:macro name="rg2_finger" params="prefix finger parent reflex">
+
+        <xacro:property name="offset" value="${-30.0*pi/180.0}"/>
+        <xacro:property name="multiplier" value="${75.0/0.11*pi/180.0}"/>
+
+        <!-- moment bar -->
+        <joint name="${prefix}${finger}_moment_joint" type="revolute">
+            <parent link="${parent}"/>
+            <child link = "${prefix}${finger}_moment_bar"/>
+            <xacro:unless value="${reflex}">
+                <origin xyz="0.017 0.0 0.066" rpy="0.0 ${offset} 0.0"/>
+            </xacro:unless>
+            <xacro:if value="${reflex}">
+                <origin xyz="-0.017 0.0 0.066" rpy="0.0 ${offset} ${pi}"/>
+            </xacro:if>
+            <mimic joint="${prefix}motor_joint" multiplier="${multiplier}" offset="0.0"/>
+            <axis xyz="0 1 0"/>
+            <limit effort="730" velocity="3.4" lower="0.0" upper="1.31"/>
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+
+        <link name="${prefix}${finger}_moment_bar">
+            <visual>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/visual/rg2_finger_moment_bar.dae"/>
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/collision/rg2_finger_moment_bar.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.001"/>
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+            </inertial>
+        </link>
+
+        <!-- truss bar -->
+        <joint name="${prefix}${finger}_truss_joint" type="revolute">
+            <parent link="${parent}"/>
+            <child link = "${prefix}${finger}_truss_bar"/>
+            <xacro:unless value="${reflex}">
+                <origin xyz="0.0075 0.0 0.0825" rpy="0.0 ${offset} 0.0"/>
+            </xacro:unless>
+            <xacro:if value="${reflex}">
+                <origin xyz="-0.0075 0.0 0.0825" rpy="0.0 ${offset} ${pi}"/>
+            </xacro:if>
+            <axis xyz="0 1 0"/>
+            <limit effort="730" velocity="3.4" lower="0.0" upper="1.31"/>
+            <mimic joint="${prefix}motor_joint" multiplier="${multiplier}" offset="0.0"/>
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+
+        <link name="${prefix}${finger}_truss_bar">
+            <visual>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/visual/rg2_finger_truss_bar.dae"/>
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/collision/rg2_finger_truss_bar.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.001"/>
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+            </inertial>
+        </link>
+
+        <!-- tip bar -->
+        <joint name="${prefix}${finger}_tip_joint" type="revolute">
+            <parent link = "${prefix}${finger}_moment_bar"/>
+            <child link = "${prefix}${finger}_tip_bar"/>
+            <origin xyz="0.0256 0.0 0.04868" rpy="0.0 ${-offset} 0.0"/>
+            <axis xyz="0 -1 0"/>
+            <limit effort="730" velocity="3.4" lower="0.0" upper="1.31"/>
+            <mimic joint="${prefix}motor_joint" multiplier="${multiplier}" offset="0.0"/>
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+
+        <link name="${prefix}${finger}_tip_bar">
+            <visual>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/visual/rg2_finger_tip_bar.dae"/>
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/collision/rg2_finger_tip_bar_1.stl"/>
+                </geometry>
+            </collision>
+            <collision>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/collision/rg2_finger_tip_bar_2.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.001"/>
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+            </inertial>
+        </link>
+
+        <!-- tip flex -->
+        <joint name="${prefix}${finger}_fingertip_joint" type="fixed">
+            <parent link="${prefix}${finger}_tip_bar"/>
+            <child link = "${prefix}${finger}_fingertip"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </joint>
+
+        <link name="${prefix}${finger}_fingertip">
+            <visual>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/visual/rg2_fingertip_std.dae"/>
+                </geometry>
+                <material name="DarkGrey">
+                    <color rgba="0.3 0.3 0.3 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/collision/rg2_fingertip_std.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.001"/>
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+            </inertial>
+        </link>
+
+    </xacro:macro>
+
+    <xacro:macro name="rg2" params="parent *origin prefix:='' mount_angle:=0.0">
+
+        <!-- coupling -->
+        <joint name="${prefix}coupling_joint" type="fixed">
+            <parent link="${parent}"/>
+            <child link = "${prefix}coupling"/>
+            <xacro:insert_block name="origin"/>
+        </joint>
+
+        <link name="${prefix}coupling">
+            <visual>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/visual/rg2_gripper_coupling.dae"/>
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/collision/rg2_gripper_coupling.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.09"/>
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+            </inertial>
+        </link>
+
+        <!-- body -->
+        <joint name="${prefix}body_joint" type="fixed">
+            <parent link="${prefix}coupling"/>
+            <child link = "${prefix}body"/>
+            <origin xyz="0.0 0.0 0.039" rpy="${mount_angle} 0.0 0.0"/>
+        </joint>
+
+        <link name="${prefix}body">
+            <visual>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/visual/rg2_gripper_body.dae"/>
+                </geometry>
+                <material name="LightGrey">
+                    <color rgba="0.7 0.7 0.7 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://onrobot_description/meshes/rg2/collision/rg2_gripper_body.stl"/>
+                </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.65"/>
+                <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+            </inertial>
+        </link>
+
+        <!-- dummy motor joint/link -->
+        <joint name="${prefix}motor_joint" type="prismatic">
+            <parent link="${prefix}body"/>
+            <child link = "${prefix}motor_link"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <axis xyz="1 0 0"/>
+            <limit effort="40" velocity="184" lower="0.0" upper="0.110"/>
+        </joint>
+
+        <link name="${prefix}motor_link"/>
+
+        <!-- finger 1 -->
+        <xacro:rg2_finger parent="${prefix}body" prefix="${prefix}" finger="finger_1" reflex="false"/>
+
+        <!-- finger 2 -->
+        <xacro:rg2_finger parent="${prefix}body" prefix="${prefix}" finger="finger_2" reflex="true"/>
+
+    </xacro:macro>
+
+</robot>

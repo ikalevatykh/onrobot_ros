@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="rg2">
+  <xacro:include filename="$(find onrobot_description)/urdf/rg2.urdf.xacro" />
+
+  <link name="world" />
+
+  <xacro:rg2 parent="world" prefix='gripper_'>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </xacro:rg2>
+</robot>

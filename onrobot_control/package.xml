@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<package format="2">
+    <name>onrobot_control</name>
+    <version>0.1.0</version>
+    <description>The onrobot_control package</description>
+
+    <maintainer email="kalevatykh.igor@inria.fr">Igor Kalevatykh</maintainer>
+    <author email="igor.kalevatykh@inria.fr">Igor Kalevatykh</author>
+
+    <license>MIT</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+    <depend>control_msgs</depend>
+    <depend>ur_msgs</depend>
+    <depend>urdf</depend>
+</package>
