@@ -21,7 +21,6 @@ class GripperController:
         self._tool_voltage = 0
         self._ready = False
         self._state = 0
-        self._low_force_mode = False
 
         self._position_voltage = 0.0
         self._max_position_voltage = rospy.get_param(
@@ -87,27 +86,6 @@ class GripperController:
         """
         return max(0.0, min(1.0, self._position_voltage / self._max_position_voltage))
 
-    # @property
-    # def width(self):
-    #     """Fingers opening in meters.
-
-    #     Returns:
-    #         float -- opening 0..max_stroke
-    #     """
-    #     return self.opening * self._max_stroke
-
-    # @property
-    # def force(self):
-    #     """Gripping force.
-
-    #     Returns:
-    #         float -- opening 0..1 such that 0 - fully closed, 1 - fully opened
-    #     """
-    #     if self._low_force_mode:
-    #         return self._min_force
-    #     else:
-    #         return self._max_force
-
     def open(self, low_force_mode=False, wait=True):
         """Open the gripper.
 
@@ -135,6 +113,7 @@ class GripperController:
     def _move(self, target, low_force_mode=False, wait=True):
         self._set_digital_out(17, 1 if low_force_mode else 0)
         self._set_digital_out(16, target)
+        self._ready = False
         if wait and not self._wait_for(lambda: self._ready and self._state == target):
             raise ROSException('Cannot move the gripper')
 
@@ -144,9 +123,6 @@ class GripperController:
                 self._state = int(digital.state)
             elif digital.pin == 17:
                 self._ready = bool(digital.state)
-        for digital in io_states.digital_out_states:
-            if digital.pin == 17:
-                self._low_force_mode = bool(digital.state)
 
     def _tool_data_cb(self, tool_data):
         self._tool_voltage = tool_data.tool_output_voltage

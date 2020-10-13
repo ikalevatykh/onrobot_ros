@@ -6,7 +6,8 @@ from onrobot_control import GripperControlServer
 
 def main():
     rospy.init_node('onrobot_gripper', anonymous=True)
-    GripperControlServer()
+    srv = GripperControlServer()
+    srv.start()
     rospy.spin()
 
 
