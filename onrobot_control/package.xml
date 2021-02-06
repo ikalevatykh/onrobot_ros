@@ -5,7 +5,7 @@
     <version>0.1.0</version>
     <description>The onrobot_control package</description>
 
-    <maintainer email="kalevatykh.igor@inria.fr">Igor Kalevatykh</maintainer>
+    <maintainer email="igor.kalevatykh@inria.fr">Igor Kalevatykh</maintainer>
     <author email="igor.kalevatykh@inria.fr">Igor Kalevatykh</author>
 
     <license>MIT</license>
