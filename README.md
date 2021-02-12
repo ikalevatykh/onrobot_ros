@@ -8,7 +8,7 @@ ROS onrobot meta-package
 
 This package contains the description of [OnRobot](https://onrobot.com/en/products) RG2 and RG6 grippers. The descriptions are based on the URDF format.
 
-![TeaTime](https://github.com/ikalevatykh/onrobot/blob/main/onrobot_description/media/rg_grippers.png?raw=true "TeaTime")
+![Grippers](https://raw.githubusercontent.com/ikalevatykh/onrobot_ros/master/onrobot_description/media/rg_grippers.png "Grippers")
 
 ### onrobot_control
 
