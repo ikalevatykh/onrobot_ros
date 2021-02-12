@@ -23,7 +23,7 @@ class GripperControlServer:
         """
         self._state_publish_rate = rospy.get_param("~state_publish_rate", 50)
         self._action_monitor_rate = rospy.get_param('~action_monitor_rate', 20)
-        self._joint_name = rospy.get_param('~joint', 'gripper_motor_joint')
+        self._joint_name = rospy.get_param('~joint', 'gripper_joint')
         self._limit, self._mimics = _get_joint_info(self._joint_name)
 
         self._gripper = GripperController()
