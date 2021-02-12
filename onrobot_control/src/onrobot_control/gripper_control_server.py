@@ -15,12 +15,8 @@ __all__ = ('GripperControlServer')
 class GripperControlServer:
     """The ObjectRecognitionServer class."""
 
-    def __init__(self, gripper):
-        """Constructor for a class GripperControlServer.
-
-        Arguments:
-            gripper {GripperController} -- gripper controller
-        """
+    def __init__(self):
+        """Constructor for a class GripperControlServer."""
         self._state_publish_rate = rospy.get_param("~state_publish_rate", 50)
         self._action_monitor_rate = rospy.get_param('~action_monitor_rate', 20)
         self._joint_name = rospy.get_param('~joint', 'gripper_joint')
@@ -29,14 +25,17 @@ class GripperControlServer:
         self._gripper = GripperController()
 
         self._server = actionlib.SimpleActionServer(
-            'gripper_cmd', GripperCommandAction,
-            execute_cb=self.execute, auto_start=True)
+            'gripper_cmd', GripperCommandAction, execute_cb=self.execute,
+            auto_start=False)
 
         self._joint_states_pub = rospy.Publisher(
-            '/joint_states', JointState, queue_size=10)
+            'joint_states', JointState, queue_size=10)
 
+    def start(self):
+        """Start the server."""
         period = rospy.Duration(1.0 / self._state_publish_rate)
         self.timer = rospy.Timer(period, self.publish_state_cb)
+        self._server.start()
 
     def execute(self, goal):
         """Action server callback.
@@ -57,8 +56,10 @@ class GripperControlServer:
             else:
                 self._gripper.open(low_force_mode, wait=False)
 
-            rate = rospy.Rate(1.0 / self._action_monitor_rate)
+            rate = rospy.Rate(self._action_monitor_rate)
             while self._server.is_active():
+                rate.sleep()
+
                 width = self._gripper.opening * self._limit.upper
                 force = self._limit.effort * (0.125 if low_force_mode else 1.0)
 
@@ -82,8 +83,6 @@ class GripperControlServer:
                     reached_goal=False,
                 )
                 self._server.publish_feedback(feedback)
-
-                rate.sleep()
         except Exception as ex:
             rospy.logerr('Griper commmand failed: %s', ex)
             self._server.set_aborted(text=str(ex))
