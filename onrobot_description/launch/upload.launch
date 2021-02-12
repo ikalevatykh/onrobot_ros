@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 
 <launch>
-    <arg name="model" default="rg2"/>
-
-    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find onrobot_description)/urdf/$(arg model)_robot.urdf.xacro'" />
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find onrobot_description)/urdf/test.urdf.xacro'"/>
 </launch>

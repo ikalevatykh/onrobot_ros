@@ -1,0 +1,13 @@
+mass: 0.78
+limit:
+  lower: -0.476
+  upper: 0.814
+  effort: 0
+  velocity: 0
+origin:
+  single_bracket: { x: 0.0, y: 0.0, z: 0.051 }
+  moment_arm: { x: -0.0238, y: 0.0, z: 0.066 }
+  truss_arm: { x: -0.0105, y: 0.0, z: 0.0891 }
+  safety_shield: { x: -0.00665, y: 0.0, z: -0.01155 }
+  finger_tip: { x: -0.05503, y: 0.0, z: 0.05807 }
+  flex_finger: { x: 0.0098, y: 0.0, z: 0.0218 }

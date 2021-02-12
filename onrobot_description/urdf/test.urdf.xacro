@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="onrobot_rg_test">
+  <xacro:include filename="$(find onrobot_description)/urdf/onrobot_rg.urdf.xacro" />
+
+  <link name="world" />
+
+  <xacro:onrobot_rg parent="world" model='rg2_v1' prefix='rg2'>
+    <origin xyz="0.0 0.05 0.0" rpy="0.0 0.0 0.0" />
+  </xacro:onrobot_rg>
+
+  <xacro:onrobot_rg parent="world" model='rg6_v1' safety_shield='true' prefix='rg6'>
+    <origin xyz="0.0 -0.05 0.0" rpy="0.0 0.0 0.0" />
+  </xacro:onrobot_rg>
+</robot>
