@@ -6,7 +6,9 @@ ROS onrobot meta-package
 
 ### onrobot_description
 
-This package contains the description of [OnRobot](https://onrobot.com/en/products) end effectors (RG2 only for now). The descriptions are based on the URDF format.
+This package contains the description of [OnRobot](https://onrobot.com/en/products) RG2 and RG6 grippers. The descriptions are based on the URDF format.
+
+![TeaTime](https://github.com/ikalevatykh/onrobot/blob/main/onrobot_description/media/rg_grippers.png?raw=true "TeaTime")
 
 ### onrobot_control
 
@@ -27,7 +29,7 @@ roslaunch onrobot_control onrobot_gripper.launch
 Parameters:
 
 - ur_hardware_interface - Universal Robot driver namespace, default "/ur_hardware_interface"
-- joint - gripper joint name in the robot description URDF, default "gripper_motor_joint"
+- joint - gripper joint name in the robot description URDF, default "gripper_joint"
 - max_position_voltage - analoug feedback voltage which correspond to the maximum width, default 3.0. See the *Analog feedback* section in the [gripper instruction](https://www.universal-robots.com/media/1226143/rg2-datasheet-v14.pdf) for details.
 - state_publish_rate - joint states publish rate, default 50.0 Hz
 - action_monitor_rate - GripperCommandAction feedback publish rate, default 20.0 Hz
