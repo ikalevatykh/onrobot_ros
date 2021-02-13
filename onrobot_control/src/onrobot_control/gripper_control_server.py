@@ -118,7 +118,7 @@ def _get_joint_info(joint_name):
     limit = None
     mimics = {}
 
-    robot = URDF.from_parameter_server()
+    robot = URDF.from_parameter_server(key='/robot_description')
     for joint in robot.joints:
         if joint.name == joint_name:
             limit = joint.limit
