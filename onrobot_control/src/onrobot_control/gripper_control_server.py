@@ -18,7 +18,7 @@ class GripperControlServer:
     def __init__(self):
         """Constructor for a class GripperControlServer."""
         self._state_publish_rate = rospy.get_param("~state_publish_rate", 50)
-        self._action_monitor_rate = rospy.get_param('~action_monitor_rate', 20)
+        self._action_monitor_rate = rospy.get_param('~action_monitor_rate', 5)
         self._joint_name = rospy.get_param('~joint', 'gripper_joint')
         self._limit, self._mimics = _get_joint_info(self._joint_name)
 
@@ -47,9 +47,9 @@ class GripperControlServer:
         """
         try:
             # gripper has only two commands: fully open, fully close
-            close = goal.command.position == 0
+            close = goal.command.position > 1e-3
             # we can choose from two effort modes
-            low_force_mode = goal.command.max_effort == 0
+            low_force_mode = goal.command.max_effort < 1e-3
 
             if close:
                 self._gripper.close(low_force_mode, wait=False)
@@ -60,7 +60,7 @@ class GripperControlServer:
             while self._server.is_active():
                 rate.sleep()
 
-                width = self._gripper.opening * self._limit.upper
+                width = (1.0 - self._gripper.opening) * self._limit.upper
                 force = self._limit.effort * (0.125 if low_force_mode else 1.0)
 
                 if self._gripper.is_ready:
@@ -94,7 +94,7 @@ class GripperControlServer:
             timer {Timer} -- timer object
         """
         try:
-            width = self._gripper.opening * self._limit.upper
+            width = (1.0 - self._gripper.opening) * self._limit.upper
 
             msg = JointState()
             msg.header.stamp = rospy.Time.now()
