@@ -5,21 +5,24 @@
   <!-- materials -->
   <xacro:include filename="$(find onrobot_description)/urdf/materials.urdf.xacro" />
 
+  <!-- transmission -->
+  <xacro:include filename="$(find onrobot_description)/urdf/onrobot_rg.transmission.xacro" />
+
+  <!-- gazebo -->
+  <xacro:include filename="$(find onrobot_description)/urdf/onrobot_rg.gazebo.xacro" />
+
+
   <!-- onrobot gripper -->
-  <xacro:macro name="onrobot_rg" params="parent *origin prefix:='gripper' model:='rg2_v1' safety_shield:=False bracket:='single_bracket' mount_angle:=0.0">
+  <xacro:macro name="onrobot_rg" params="parent *origin prefix:='gripper'
+    model:='rg2_v1' safety_shield:=False bracket:='single_bracket' mount_angle:=0.0
+    transmission_hw_interface:=hardware_interface/EffortJointInterface">
 
     <!-- load config from file -->
     <xacro:property name="config_file" value="$(find onrobot_description)/config/${model}.yaml"/>
     <xacro:property name="config" value="${load_yaml(config_file)}"/>
-    <xacro:property name="mass" value="${config['mass']}"/>    
+    <xacro:property name="mass" value="${config['mass']}"/>
     <xacro:property name="origin" value="${config['origin']}"/>
     <xacro:property name="limit" value="${config['limit']}"/>
-
-    <!-- joint helper -->
-    <xacro:macro name="joint_config" params="name">
-      <origin xyz="${origin[name]['x']} ${origin[name]['y']} ${origin[name]['z']}" rpy="0.0 0.0 0.0"/>
-      <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
-    </xacro:macro>
 
     <!-- bracket -->
     <link name="${prefix}_bracket">
@@ -71,60 +74,21 @@
       <origin xyz="${origin[bracket]['x']} ${origin[bracket]['y']} ${origin[bracket]['z']}" rpy="${mount_angle} 0.0 0.0"/>
     </joint>
 
-    <!-- dummy motor link -->
-    <link name="${prefix}_motor">
-      <inertial>
-        <mass value="0.001"/>
-        <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-      </inertial>
-    </link>
-
-    <joint name="${prefix}_joint" type="revolute">
-      <parent link="${prefix}_body"/>
-      <child link = "${prefix}_motor"/>
-      <axis xyz="0 1 0"/>
-      <limit lower="0.0" upper="${limit['upper']-limit['lower']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
-      <dynamics damping="0" friction="0"/>
-    </joint>    
-
     <!-- fingers -->
     <xacro:macro name="finger" params="name is_master">
 
       <!-- origin -->
-      <link name="${name}_origin"/>
-
-      <joint name="${name}_origin_joint" type="fixed">
-        <parent link="${prefix}_body"/>
-        <child link = "${name}_origin"/>
-        <origin xyz="0 0 0" rpy="0 0 ${0 if is_master else pi}"/>
-      </joint>
-
-      <!-- truss bar -->
-      <link name="${name}_truss_arm">
-        <visual>
-          <geometry>
-            <mesh filename="package://onrobot_description/meshes/${model}/visual/truss_arm.stl"/>
-          </geometry>
-          <material name="onrobot/light_grey"/>
-        </visual>
-        <collision>
-          <geometry>
-            <mesh filename="package://onrobot_description/meshes/${model}/collision/truss_arm.stl"/>
-          </geometry>
-        </collision>
+      <link name="${name}_origin">
         <inertial>
           <mass value="0.001"/>
           <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
         </inertial>
       </link>
 
-      <joint name="${name}_joint" type="revolute">
-        <parent link="${name}_origin"/>
-        <child link = "${name}_truss_arm"/>
-        <axis xyz="0 1 0"/>
-        <xacro:joint_config name="truss_arm"/>
-        <mimic joint="${prefix}_joint" multiplier="-1" offset="${limit['upper']}"/>
-        <dynamics damping="0" friction="0"/>
+      <joint name="${name}_origin_joint" type="fixed">
+        <parent link="${prefix}_body"/>
+        <child link = "${name}_origin"/>
+        <origin xyz="0 0 0" rpy="0 0 ${0 if is_master else pi}"/>
       </joint>
 
       <!-- moment bar -->
@@ -146,14 +110,77 @@
         </inertial>
       </link>
 
-      <joint name="${name}_moment_arm_joint" type="revolute">
+      <joint name="${prefix + ('' if is_master else '_mirror')}_joint" type="revolute">
         <parent link="${name}_origin"/>
         <child link = "${name}_moment_arm"/>
         <axis xyz="0 1 0"/>
-        <xacro:joint_config name="moment_arm"/>
-        <mimic joint="${prefix}_joint" multiplier="-1" offset="${limit['upper']}"/>
-        <dynamics damping="0" friction="0"/>
+        <origin xyz="${origin['moment_arm']['x']} ${origin['moment_arm']['y']} ${origin['moment_arm']['z']}" rpy="0.0 ${limit['offset']} 0.0"/>
+        <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+        <dynamics damping="0.1" friction="0.1"/>
+        <xacro:unless value="${is_master}">
+          <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
+        </xacro:unless>
       </joint>
+
+      <!-- truss bar -->
+      <link name="${name}_truss_arm">
+        <visual>
+          <geometry>
+            <mesh filename="package://onrobot_description/meshes/${model}/visual/truss_arm.stl"/>
+          </geometry>
+          <material name="onrobot/light_grey"/>
+        </visual>
+        <collision>
+          <geometry>
+            <mesh filename="package://onrobot_description/meshes/${model}/collision/truss_arm.stl"/>
+          </geometry>
+        </collision>
+        <inertial>
+          <mass value="0.001"/>
+          <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
+        </inertial>
+      </link>
+
+      <joint name="${name}_truss_arm_joint" type="revolute">
+        <parent link="${name}_origin"/>
+        <child link = "${name}_truss_arm"/>
+        <axis xyz="0 1 0"/>
+        <origin xyz="${origin['truss_arm']['x']} ${origin['truss_arm']['y']} ${origin['truss_arm']['z']}" rpy="0.0 ${limit['offset']} 0.0"/>
+        <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+        <dynamics damping="0.1" friction="0.1"/>
+        <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
+      </joint>
+
+      <!-- safety shield -->
+      <xacro:if value="${safety_shield}">
+        <link name="${name}_safety_shield">
+          <visual>
+            <geometry>
+              <mesh filename="package://onrobot_description/meshes/${model}/visual/safety_shield.stl"/>
+            </geometry>
+            <material name="onrobot/dark_grey"/>
+          </visual>
+          <!-- <collision>
+            <geometry>
+              <mesh filename="package://onrobot_description/meshes/${model}/collision/safety_shield.stl"/>
+            </geometry>
+          </collision> -->
+          <inertial>
+            <mass value="0.001"/>
+            <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
+          </inertial>
+        </link>
+
+        <joint name="${name}_safety_shield_joint" type="revolute">
+          <parent link="${name}_finger_tip"/>
+          <child link = "${name}_safety_shield"/>
+          <axis xyz="0 1 0"/>
+          <origin xyz="${origin['safety_shield']['x']} ${origin['safety_shield']['y']} ${origin['safety_shield']['z']}" rpy="0.0 ${limit['offset']} 0.0"/>
+          <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+          <dynamics damping="0.1" friction="0.1"/>
+          <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
+        </joint>
+      </xacro:if>
 
       <!-- finger tip -->
       <link name="${name}_finger_tip">
@@ -183,9 +210,10 @@
         <parent link = "${name}_truss_arm"/>
         <child link = "${name}_finger_tip"/>
         <axis xyz="0 -1 0"/>
-        <xacro:joint_config name="finger_tip"/>
-        <mimic joint="${prefix}_joint" multiplier="-1" offset="${limit['upper']}"/>
-        <dynamics damping="0" friction="0"/>
+        <origin xyz="${origin['finger_tip']['x']} ${origin['finger_tip']['y']} ${origin['finger_tip']['z']}" rpy="0.0 ${-limit['offset']} 0.0"/>
+        <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+        <dynamics damping="0.1" friction="0.1"/>
+        <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
       </joint>
 
       <!-- flex finger -->
@@ -210,43 +238,16 @@
       <joint name="${name}_flex_finger_joint" type="fixed">
         <parent link="${name}_finger_tip"/>
         <child link = "${name}_flex_finger"/>
-        <xacro:joint_config name="flex_finger"/>
+        <origin xyz="${origin['flex_finger']['x']} ${origin['flex_finger']['y']} ${origin['flex_finger']['z']}" rpy="0.0 0.0 0.0"/>
       </joint>
-
-      <!-- safety shield -->
-      <xacro:if value="${safety_shield}">
-        <link name="${name}_safety_shield">
-          <visual>
-            <geometry>
-              <mesh filename="package://onrobot_description/meshes/${model}/visual/safety_shield.stl"/>
-            </geometry>
-            <material name="onrobot/dark_grey"/>
-          </visual>
-          <collision>
-            <geometry>
-              <mesh filename="package://onrobot_description/meshes/${model}/collision/safety_shield.stl"/>
-            </geometry>
-          </collision>
-          <inertial>
-            <mass value="0.001"/>
-            <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-          </inertial>
-        </link>
-
-        <joint name="${name}_safety_shield_joint" type="revolute">
-          <parent link="${name}_finger_tip"/>
-          <child link = "${name}_safety_shield"/>
-          <axis xyz="0 1 0"/>
-          <xacro:joint_config name="safety_shield"/>
-          <mimic joint="${prefix}_joint" multiplier="-1" offset="${limit['upper']}"/>
-          <dynamics damping="0" friction="0"/>
-        </joint>
-      </xacro:if>
 
     </xacro:macro>
 
     <xacro:finger name="${prefix}_finger_1" is_master="true"/>
     <xacro:finger name="${prefix}_finger_2" is_master="false"/>
+
+    <xacro:rg_transmission prefix="${prefix}" hw_interface="${transmission_hw_interface}"/>
+    <xacro:rg_gazebo prefix="${prefix}" origin="${origin}" limit="${limit}" safety_shield="${safety_shield}"/>
 
   </xacro:macro>
 

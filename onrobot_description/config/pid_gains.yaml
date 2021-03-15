@@ -1,0 +1,4 @@
+gazebo_ros_control:
+  pid_gains:
+    rg2_mirror_joint: { p: 500, d: 1, i: 1, i_clamp: 1 }
+    rg6_mirror_joint: { p: 500, d: 1, i: 1, i_clamp: 1 }

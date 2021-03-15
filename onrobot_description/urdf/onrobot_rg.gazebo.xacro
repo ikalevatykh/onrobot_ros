@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="rg_gazebo" params="prefix origin limit safety_shield:=False">
+
+    <!-- add close loop joints -->
+    <xacro:macro name="close_loop_joint" params="name xyz">
+      <joint name='${name}_close_loop_joint' type='revolute'>
+        <parent>${name}_moment_arm</parent>
+        <child>${name}_finger_tip</child>
+        <pose frame=''>${xyz} 0 0 0</pose>
+        <axis>
+          <xyz>0 -1 0</xyz>
+          <use_parent_model_frame>0</use_parent_model_frame>
+        </axis>
+      </joint>
+    </xacro:macro>
+
+    <gazebo>
+      <xacro:property name="x" value="${origin['moment_arm']['x']-origin['truss_arm']['x']}"/>
+      <xacro:property name="y" value="${origin['moment_arm']['y']-origin['truss_arm']['y']}"/>
+      <xacro:property name="z" value="${origin['moment_arm']['z']-origin['truss_arm']['z']}"/>
+
+      <xacro:close_loop_joint name="${prefix}_finger_1" xyz="${x} ${y} ${z}"/>
+      <xacro:close_loop_joint name="${prefix}_finger_2" xyz="${x} ${y} ${z}"/>
+    </gazebo>
+
+    <!-- enable mimic joints -->
+    <xacro:macro name="mimic_joint" params="name has_pid:=true max_effort:=40.0">
+      <plugin name="${name}_mimic_joint_plugin" filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
+        <joint>${prefix}_joint</joint>
+        <mimicJoint>${name}</mimicJoint>
+        <multiplier>1.0</multiplier>
+        <offset>0.0</offset>
+        <sensitiveness>0.0</sensitiveness>
+        <xacro:if value="${has_pid}">
+          <hasPID/>
+          <maxEffort>${limit['effort']}</maxEffort>
+        </xacro:if>
+      </plugin>
+    </xacro:macro>
+
+    <gazebo>
+      <xacro:mimic_joint name="${prefix}_mirror_joint"/>
+      <xacro:if value="${safety_shield}">
+        <xacro:mimic_joint name="${prefix}_finger_1_safety_shield_joint" has_pid="false"/>
+        <xacro:mimic_joint name="${prefix}_finger_2_safety_shield_joint" has_pid="false"/>
+      </xacro:if>
+    </gazebo>
+
+    <!-- enable self collision -->
+    <gazebo reference="${prefix}_bracket">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="${prefix}_body">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="${prefix}_finger_1_truss_arm">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="${prefix}_finger_1_moment_arm">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="${prefix}_finger_1_finger_tip">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="${prefix}_finger_1_flex_finger">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="${prefix}_finger_2_truss_arm">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="${prefix}_finger_2_moment_arm">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="${prefix}_finger_2_finger_tip">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+    <gazebo reference="${prefix}_finger_2_flex_finger">
+      <selfCollide>true</selfCollide>
+    </gazebo>
+  </xacro:macro>
+
+</robot>
