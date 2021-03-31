@@ -23,6 +23,7 @@
     <xacro:property name="limit" value="${config['limit']}"/>
     <xacro:property name="origin" value="${config['origin']}"/>
     <xacro:property name="inertial" value="${config['inertial']}"/>
+    <xacro:property name="offset" value="${config['kinematics']['offset']}"/>
 
     <xacro:macro name="_limit" params="">
       <limit lower="${limit['lower']}" upper="${limit['upper']}"
@@ -126,7 +127,7 @@
         <parent link="${name}_frame"/>
         <child link = "${name}_moment_arm"/>
         <axis xyz="0 1 0"/>
-        <xacro:_frame id="moment_arm" rpy="0.0 ${limit['offset']} 0.0"/>
+        <xacro:_frame id="moment_arm" rpy="0.0 ${offset} 0.0"/>
         <xacro:_limit/>
         <dynamics damping="0.1" friction="0.1"/>
         <xacro:unless value="${is_master}">
@@ -154,7 +155,7 @@
         <parent link="${name}_frame"/>
         <child link = "${name}_truss_arm"/>
         <axis xyz="0 1 0"/>
-        <xacro:_frame id="truss_arm" rpy="0.0 ${limit['offset']} 0.0"/>
+        <xacro:_frame id="truss_arm" rpy="0.0 ${offset} 0.0"/>
         <xacro:_limit/>
         <dynamics damping="0.1" friction="0.1"/>
         <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
@@ -182,7 +183,7 @@
           <parent link="${name}_finger_tip"/>
           <child link = "${name}_safety_shield"/>
           <axis xyz="0 1 0"/>
-          <xacro:_frame id="safety_shield" rpy="0.0 ${limit['offset']} 0.0"/>
+          <xacro:_frame id="safety_shield" rpy="0.0 ${offset} 0.0"/>
           <xacro:_limit/>
           <dynamics damping="0.1" friction="0.1"/>
           <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
@@ -214,7 +215,7 @@
         <parent link = "${name}_truss_arm"/>
         <child link = "${name}_finger_tip"/>
         <axis xyz="0 -1 0"/>
-        <xacro:_frame id="finger_tip" rpy="0.0 ${-limit['offset']} 0.0"/>
+        <xacro:_frame id="finger_tip" rpy="0.0 ${-offset} 0.0"/>
         <xacro:_limit/>
         <dynamics damping="0.1" friction="0.1"/>
         <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
