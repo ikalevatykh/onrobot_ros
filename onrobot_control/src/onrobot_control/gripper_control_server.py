@@ -25,7 +25,7 @@ class GripperControlServer:
         self._gripper = GripperController()
 
         self._server = actionlib.SimpleActionServer(
-            'gripper_cmd', GripperCommandAction, execute_cb=self.execute,
+            '~gripper_cmd', GripperCommandAction, execute_cb=self.execute,
             auto_start=False)
 
         self._joint_states_pub = rospy.Publisher(

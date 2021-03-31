@@ -7,7 +7,7 @@
     <arg name="state_publish_rate" default="50.0"/>
     <arg name="action_monitor_rate" default="5.0"/>
 
-    <node name="onrobot_gripper" pkg="onrobot_control" type="onrobot_gripper_node.py" output="screen" respawn="true">
+    <node name="gripper_controller" pkg="onrobot_control" type="onrobot_gripper_node.py" output="screen" respawn="true">
         <param name="ur_hardware_interface" type="str" value="$(arg ur_hardware_interface)"/>
         <param name="joint" type="str" value="$(arg joint)"/>
         <param name="max_position_voltage" type="double" value="$(arg max_position_voltage)"/>
