@@ -24,6 +24,14 @@
     <xacro:property name="origin" value="${config['origin']}"/>
     <xacro:property name="limit" value="${config['limit']}"/>
 
+    <xacro:macro name="_limit" params="">
+      <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+    </xacro:macro>
+
+    <xacro:macro name="_frame" params="id rpy">
+      <origin xyz="${origin[id]['x']} ${origin[id]['y']} ${origin[id]['z']}" rpy="${rpy}"/>
+    </xacro:macro>
+
     <!-- bracket -->
     <link name="${prefix}_bracket">
       <visual>
@@ -71,7 +79,7 @@
     <joint name="${prefix}_body_joint" type="fixed">
       <parent link="${prefix}_bracket"/>
       <child link = "${prefix}_body"/>
-      <origin xyz="${origin[bracket]['x']} ${origin[bracket]['y']} ${origin[bracket]['z']}" rpy="${mount_angle} 0.0 0.0"/>
+      <xacro:_frame id="${bracket}" rpy="${mount_angle} 0.0 0.0"/>
     </joint>
 
     <!-- grasp frame -->
@@ -80,23 +88,23 @@
     <joint name="${prefix}_grasp_frame_joint" type="fixed">
       <parent link="${prefix}_body"/>
       <child link = "${prefix}_grasp_frame"/>
-      <origin xyz="${origin['grasp_frame']['x']} ${origin['grasp_frame']['y']} ${origin['grasp_frame']['z']}" rpy="0.0 0.0 0.0"/>
+      <xacro:_frame id="grasp_frame" rpy="0.0 0.0 0.0"/>
     </joint>
 
     <!-- fingers -->
     <xacro:macro name="finger" params="name is_master">
 
       <!-- origin -->
-      <link name="${name}_origin">
+      <link name="${name}_frame">
         <inertial>
           <mass value="0.001"/>
           <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
         </inertial>
       </link>
 
-      <joint name="${name}_origin_joint" type="fixed">
+      <joint name="${name}_frame_joint" type="fixed">
         <parent link="${prefix}_body"/>
-        <child link = "${name}_origin"/>
+        <child link = "${name}_frame"/>
         <origin xyz="0 0 0" rpy="0 0 ${0 if is_master else pi}"/>
       </joint>
 
@@ -120,11 +128,11 @@
       </link>
 
       <joint name="${prefix + ('' if is_master else '_mirror')}_joint" type="revolute">
-        <parent link="${name}_origin"/>
+        <parent link="${name}_frame"/>
         <child link = "${name}_moment_arm"/>
         <axis xyz="0 1 0"/>
-        <origin xyz="${origin['moment_arm']['x']} ${origin['moment_arm']['y']} ${origin['moment_arm']['z']}" rpy="0.0 ${limit['offset']} 0.0"/>
-        <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+        <xacro:_frame id="moment_arm" rpy="0.0 ${limit['offset']} 0.0"/>
+        <xacro:_limit/>
         <dynamics damping="0.1" friction="0.1"/>
         <xacro:unless value="${is_master}">
           <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
@@ -151,11 +159,11 @@
       </link>
 
       <joint name="${name}_truss_arm_joint" type="revolute">
-        <parent link="${name}_origin"/>
+        <parent link="${name}_frame"/>
         <child link = "${name}_truss_arm"/>
         <axis xyz="0 1 0"/>
-        <origin xyz="${origin['truss_arm']['x']} ${origin['truss_arm']['y']} ${origin['truss_arm']['z']}" rpy="0.0 ${limit['offset']} 0.0"/>
-        <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+        <xacro:_frame id="truss_arm" rpy="0.0 ${limit['offset']} 0.0"/>
+        <xacro:_limit/>
         <dynamics damping="0.1" friction="0.1"/>
         <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
       </joint>
@@ -185,8 +193,8 @@
           <parent link="${name}_finger_tip"/>
           <child link = "${name}_safety_shield"/>
           <axis xyz="0 1 0"/>
-          <origin xyz="${origin['safety_shield']['x']} ${origin['safety_shield']['y']} ${origin['safety_shield']['z']}" rpy="0.0 ${limit['offset']} 0.0"/>
-          <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+          <xacro:_frame id="safety_shield" rpy="0.0 ${limit['offset']} 0.0"/>
+          <xacro:_limit/>
           <dynamics damping="0.1" friction="0.1"/>
           <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
         </joint>
@@ -220,8 +228,8 @@
         <parent link = "${name}_truss_arm"/>
         <child link = "${name}_finger_tip"/>
         <axis xyz="0 -1 0"/>
-        <origin xyz="${origin['finger_tip']['x']} ${origin['finger_tip']['y']} ${origin['finger_tip']['z']}" rpy="0.0 ${-limit['offset']} 0.0"/>
-        <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+        <xacro:_frame id="finger_tip" rpy="0.0 ${-limit['offset']} 0.0"/>
+        <xacro:_limit/>
         <dynamics damping="0.1" friction="0.1"/>
         <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
       </joint>
@@ -248,7 +256,7 @@
       <joint name="${name}_flex_finger_joint" type="fixed">
         <parent link="${name}_finger_tip"/>
         <child link = "${name}_flex_finger"/>
-        <origin xyz="${origin['flex_finger']['x']} ${origin['flex_finger']['y']} ${origin['flex_finger']['z']}" rpy="0.0 0.0 0.0"/>
+        <xacro:_frame id="flex_finger" rpy="0.0 0.0 0.0"/>
       </joint>
 
     </xacro:macro>
