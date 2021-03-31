@@ -12,3 +12,4 @@ origin:
   safety_shield: { x: -0.00665, y: 0.0, z: -0.01155 }
   finger_tip: { x: -0.05503, y: 0.0, z: 0.05807 }
   flex_finger: { x: 0.0098, y: 0.0, z: 0.0218 }
+  grasp_frame: { x: 0.0, y: 0.0, z: 0.19 }

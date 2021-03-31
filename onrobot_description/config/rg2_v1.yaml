@@ -11,3 +11,4 @@ origin:
   truss_arm: { x: -0.0075, y: 0.0, z: 0.0715 }
   finger_tip: { x: -0.0256, y: 0.0, z: 0.04868 }
   flex_finger: { x: 0.03059, y: 0.0, z: 0.0172 }
+  grasp_frame: { x: 0.0, y: 0.0, z: 0.14 }

@@ -74,6 +74,15 @@
       <origin xyz="${origin[bracket]['x']} ${origin[bracket]['y']} ${origin[bracket]['z']}" rpy="${mount_angle} 0.0 0.0"/>
     </joint>
 
+    <!-- grasp frame -->
+    <link name="${prefix}_grasp_frame"/>
+
+    <joint name="${prefix}_grasp_frame_joint" type="fixed">
+      <parent link="${prefix}_body"/>
+      <child link = "${prefix}_grasp_frame"/>
+      <origin xyz="${origin['grasp_frame']['x']} ${origin['grasp_frame']['y']} ${origin['grasp_frame']['z']}" rpy="0.0 0.0 0.0"/>
+    </joint>
+
     <!-- fingers -->
     <xacro:macro name="finger" params="name is_master">
 
@@ -160,11 +169,12 @@
             </geometry>
             <material name="onrobot/dark_grey"/>
           </visual>
-          <!-- <collision>
+          <collision>
             <geometry>
-              <mesh filename="package://onrobot_description/meshes/${model}/collision/safety_shield.stl"/>
+              <!-- <mesh filename="package://onrobot_description/meshes/${model}/collision/safety_shield.stl"/> -->
+              <box size="0.0 0.0 0.0"/>
             </geometry>
-          </collision> -->
+          </collision>
           <inertial>
             <mass value="0.001"/>
             <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
