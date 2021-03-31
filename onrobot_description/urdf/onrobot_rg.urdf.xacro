@@ -20,16 +20,25 @@
     <!-- load config from file -->
     <xacro:property name="config_file" value="$(find onrobot_description)/config/${model}.yaml"/>
     <xacro:property name="config" value="${load_yaml(config_file)}"/>
-    <xacro:property name="mass" value="${config['mass']}"/>
-    <xacro:property name="origin" value="${config['origin']}"/>
     <xacro:property name="limit" value="${config['limit']}"/>
+    <xacro:property name="origin" value="${config['origin']}"/>
+    <xacro:property name="inertial" value="${config['inertial']}"/>
 
     <xacro:macro name="_limit" params="">
-      <limit lower="${limit['lower']}" upper="${limit['upper']}" effort="${limit['effort']}" velocity="${limit['velocity']}"/>
+      <limit lower="${limit['lower']}" upper="${limit['upper']}"
+             effort="${limit['effort']}" velocity="${limit['velocity']}"/>
     </xacro:macro>
 
     <xacro:macro name="_frame" params="id rpy">
       <origin xyz="${origin[id]['x']} ${origin[id]['y']} ${origin[id]['z']}" rpy="${rpy}"/>
+    </xacro:macro>
+
+    <xacro:macro name="_inertial" params="id">
+      <inertial>
+        <mass value="${inertial[id]['mass']}"/>
+        <inertia ixx="${inertial[id]['ixx']}" iyy="${inertial[id]['iyy']}" izz="${inertial[id]['izz']}"
+                 ixy="${inertial[id]['ixy']}" ixz="${inertial[id]['ixz']}" iyz="${inertial[id]['iyz']}"/>
+      </inertial>
     </xacro:macro>
 
     <!-- bracket -->
@@ -45,10 +54,7 @@
           <mesh filename="package://onrobot_description/meshes/${model}/collision/${bracket}.stl"/>
         </geometry>
       </collision>
-      <inertial>
-        <mass value="0.001"/>
-        <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-      </inertial>
+      <xacro:_inertial id="${bracket}"/>
     </link>
 
     <joint name="${prefix}_bracket_joint" type="fixed">
@@ -70,10 +76,7 @@
           <mesh filename="package://onrobot_description/meshes/${model}/collision/body.stl"/>
         </geometry>
       </collision>
-      <inertial>
-        <mass value="${mass}"/>
-        <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-      </inertial>
+      <xacro:_inertial id="body"/>
     </link>
 
     <joint name="${prefix}_body_joint" type="fixed">
@@ -94,13 +97,8 @@
     <!-- fingers -->
     <xacro:macro name="finger" params="name is_master">
 
-      <!-- origin -->
-      <link name="${name}_frame">
-        <inertial>
-          <mass value="0.001"/>
-          <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-        </inertial>
-      </link>
+      <!-- origin frame -->
+      <link name="${name}_frame"/>
 
       <joint name="${name}_frame_joint" type="fixed">
         <parent link="${prefix}_body"/>
@@ -121,10 +119,7 @@
             <mesh filename="package://onrobot_description/meshes/${model}/collision/moment_arm.stl"/>
           </geometry>
         </collision>
-        <inertial>
-          <mass value="0.001"/>
-          <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-        </inertial>
+        <xacro:_inertial id="moment_arm"/>
       </link>
 
       <joint name="${prefix + ('' if is_master else '_mirror')}_joint" type="revolute">
@@ -152,10 +147,7 @@
             <mesh filename="package://onrobot_description/meshes/${model}/collision/truss_arm.stl"/>
           </geometry>
         </collision>
-        <inertial>
-          <mass value="0.001"/>
-          <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-        </inertial>
+        <xacro:_inertial id="truss_arm"/>
       </link>
 
       <joint name="${name}_truss_arm_joint" type="revolute">
@@ -183,10 +175,7 @@
               <box size="0.0 0.0 0.0"/>
             </geometry>
           </collision>
-          <inertial>
-            <mass value="0.001"/>
-            <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-          </inertial>
+          <xacro:_inertial id="safety_shield"/>
         </link>
 
         <joint name="${name}_safety_shield_joint" type="revolute">
@@ -218,10 +207,7 @@
             <mesh filename="package://onrobot_description/meshes/${model}/collision/finger_tip_2.stl"/>
           </geometry>
         </collision>
-        <inertial>
-          <mass value="0.001"/>
-          <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-        </inertial>
+        <xacro:_inertial id="finger_tip"/>
       </link>
 
       <joint name="${name}_finger_tip_joint" type="revolute">
@@ -247,10 +233,7 @@
             <mesh filename="package://onrobot_description/meshes/${model}/collision/flex_finger.stl"/>
           </geometry>
         </collision>
-        <inertial>
-          <mass value="0.001"/>
-          <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
-        </inertial>
+        <xacro:_inertial id="flex_finger"/>
       </link>
 
       <joint name="${name}_flex_finger_joint" type="fixed">
