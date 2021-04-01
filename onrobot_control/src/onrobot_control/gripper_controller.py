@@ -62,7 +62,7 @@ class GripperController:
         Set the tool voltage to zero.
 
         Raises:
-            ROSException: timeout exception       
+            ROSException: timeout exception
         """
         self._set_tool_voltage(0)
         if not self._wait_for(lambda: self._tool_voltage == 0):
@@ -94,7 +94,7 @@ class GripperController:
             wait {bool} -- wait until the end of the movement (default: {False})
 
         Raises:
-            ROSException: timeout exception            
+            ROSException: timeout exception
         """
         self._move(0, low_force_mode, wait)
 
@@ -103,10 +103,10 @@ class GripperController:
 
         Keyword Arguments:
             low_force_mode {bool} -- use the low force mode (5N instead of 40N) (default: {False})
-            wait {bool} -- wait until the end of the movement (default: {False})  
+            wait {bool} -- wait until the end of the movement (default: {False})
 
         Raises:
-            ROSException: timeout exception                      
+            ROSException: timeout exception
         """
         self._move(1, low_force_mode, wait)
 
