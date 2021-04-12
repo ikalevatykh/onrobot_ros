@@ -26,7 +26,7 @@
     </gazebo>
 
     <!-- enable mimic joints -->
-    <xacro:macro name="mimic_joint" params="name has_pid:=true max_effort:=40.0">
+    <xacro:macro name="mimic_joint" params="name has_pid:=true">
       <plugin name="${name}_mimic_joint_plugin" filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
         <joint>${prefix}_joint</joint>
         <mimicJoint>${name}</mimicJoint>
@@ -79,6 +79,7 @@
     <gazebo reference="${prefix}_finger_2_flex_finger">
       <selfCollide>true</selfCollide>
     </gazebo>
+
   </xacro:macro>
 
 </robot>
