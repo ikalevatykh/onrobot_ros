@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>onrobot_ros</name>
+  <version>1.0.0</version>
+  <description>ROS meta-package for OnRobot devices</description>
+
+  <maintainer email="igor.kalevatykh@inria.fr">Igor Kalevatykh</maintainer>
+  <author email="igor.kalevatykh@inria.fr">Igor Kalevatykh</author>
+
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>onrobot_control</exec_depend>
+  <exec_depend>onrobot_description</exec_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
