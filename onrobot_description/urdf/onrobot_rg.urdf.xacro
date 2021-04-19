@@ -134,7 +134,7 @@
         <axis xyz="0 1 0"/>
         <xacro:_frame id="moment_arm" rpy="0.0 ${offset} 0.0"/>
         <xacro:_limit/>
-        <dynamics damping="1" friction="0"/>
+        <dynamics damping="0.5"/>
         <xacro:unless value="${is_master}">
           <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
         </xacro:unless>
@@ -162,7 +162,6 @@
         <axis xyz="0 1 0"/>
         <xacro:_frame id="truss_arm" rpy="0.0 ${offset} 0.0"/>
         <xacro:_limit/>
-        <dynamics damping="1" friction="1"/>
         <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
       </joint>
 
@@ -190,7 +189,6 @@
           <axis xyz="0 1 0"/>
           <xacro:_frame id="safety_shield" rpy="0.0 ${offset} 0.0"/>
           <xacro:_limit/>
-          <dynamics damping="1" friction="1"/>
           <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
         </joint>
       </xacro:if>
@@ -222,7 +220,6 @@
         <axis xyz="0 -1 0"/>
         <xacro:_frame id="finger_tip" rpy="0.0 ${-offset} 0.0"/>
         <xacro:_limit/>
-        <dynamics damping="1" friction="1"/>
         <mimic joint="${prefix}_joint" multiplier="1" offset="0"/>
       </joint>
 

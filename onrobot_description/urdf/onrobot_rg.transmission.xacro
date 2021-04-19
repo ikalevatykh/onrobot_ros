@@ -3,7 +3,7 @@
 
   <xacro:macro name="rg_transmission" params="prefix hw_interface">
 
-    <transmission name="${prefix}_joint_trans">
+    <!-- <transmission name="${prefix}_joint_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="${prefix}_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
@@ -12,7 +12,7 @@
         <hardwareInterface>${hw_interface}</hardwareInterface>
         <mechanicalReduction>1</mechanicalReduction>
       </actuator>
-    </transmission>
+    </transmission> -->
 
   </xacro:macro>
 

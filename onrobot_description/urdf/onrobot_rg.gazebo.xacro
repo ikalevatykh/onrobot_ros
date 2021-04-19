@@ -3,12 +3,30 @@
 
   <xacro:macro name="rg_gazebo" params="prefix origin limit safety_shield:=False">
 
+    <!-- load "onrobot_gripper_plugin" plugin -->
+    <gazebo>
+      <plugin name="${prefix}_plugin" filename="libonrobot_gripper_plugin.so">
+        <robotNamespace>/${prefix}</robotNamespace>
+        <jointName>${prefix}_joint, ${prefix}_mirror_joint</jointName>
+        <tipName>${prefix}_finger_1_finger_tip, ${prefix}_finger_2_finger_tip</tipName>
+        <palmName>${prefix}_body</palmName>
+        <xacro:if value="${safety_shield}">
+          <mimicName>${prefix}_finger_1_safety_shield_joint, ${prefix}_finger_2_safety_shield_joint</mimicName>
+        </xacro:if>
+        <maxEffort>0.5</maxEffort>
+      </plugin>
+    </gazebo>
+
     <!-- add close loop joints -->
-    <xacro:macro name="close_loop_joint" params="name xyz">
+    <xacro:property name="x" value="${origin['moment_arm']['x']-origin['truss_arm']['x']}"/>
+    <xacro:property name="y" value="${origin['moment_arm']['y']-origin['truss_arm']['y']}"/>
+    <xacro:property name="z" value="${origin['moment_arm']['z']-origin['truss_arm']['z']}"/>
+
+    <xacro:macro name="close_loop_joint" params="name">
       <joint name='${name}_close_loop_joint' type='revolute'>
         <parent>${name}_moment_arm</parent>
         <child>${name}_finger_tip</child>
-        <pose frame=''>${xyz} 0 0 0</pose>
+        <pose frame=''>${x} ${y} ${z} 0 0 0</pose>
         <axis>
           <xyz>0 -1 0</xyz>
           <use_parent_model_frame>0</use_parent_model_frame>
@@ -17,36 +35,34 @@
     </xacro:macro>
 
     <gazebo>
-      <xacro:property name="x" value="${origin['moment_arm']['x']-origin['truss_arm']['x']}"/>
-      <xacro:property name="y" value="${origin['moment_arm']['y']-origin['truss_arm']['y']}"/>
-      <xacro:property name="z" value="${origin['moment_arm']['z']-origin['truss_arm']['z']}"/>
-
-      <xacro:close_loop_joint name="${prefix}_finger_1" xyz="${x} ${y} ${z}"/>
-      <xacro:close_loop_joint name="${prefix}_finger_2" xyz="${x} ${y} ${z}"/>
+      <xacro:close_loop_joint name="${prefix}_finger_1"/>
+      <xacro:close_loop_joint name="${prefix}_finger_2"/>
     </gazebo>
 
-    <!-- enable mimic joints -->
-    <xacro:macro name="mimic_joint" params="name has_pid:=true">
-      <plugin name="${name}_mimic_joint_plugin" filename="libroboticsgroup_upatras_gazebo_mimic_joint_plugin.so">
-        <joint>${prefix}_joint</joint>
-        <mimicJoint>${name}</mimicJoint>
-        <multiplier>1.0</multiplier>
-        <offset>0.0</offset>
-        <sensitiveness>0.0</sensitiveness>
-        <xacro:if value="${has_pid}">
-          <hasPID/>
-          <maxEffort>${limit['effort']}</maxEffort>
-        </xacro:if>
-      </plugin>
+    <!-- tune tip's friction/collison model -->
+    <xacro:macro name="grasp_friction" params="link_name">
+      <gazebo reference="${link_name}">
+        <mu1>100</mu1>
+        <mu2>100</mu2>
+        <fdir1>0 0 1</fdir1>
+        <kp>100000</kp>
+        <kd>10</kd>
+        <collision name="${link_name}_collision">
+          <surface>
+            <friction>
+              <torsional>
+                <coefficient>0.456</coefficient>
+                <use_patch_radius>true</use_patch_radius>
+                <patch_radius>0.05</patch_radius>
+              </torsional>
+            </friction>
+          </surface>
+        </collision>
+      </gazebo>
     </xacro:macro>
 
-    <gazebo>
-      <xacro:mimic_joint name="${prefix}_mirror_joint"/>
-      <xacro:if value="${safety_shield}">
-        <xacro:mimic_joint name="${prefix}_finger_1_safety_shield_joint" has_pid="false"/>
-        <xacro:mimic_joint name="${prefix}_finger_2_safety_shield_joint" has_pid="false"/>
-      </xacro:if>
-    </gazebo>
+    <xacro:grasp_friction link_name="${prefix}_finger_1_flex_finger"/>
+    <xacro:grasp_friction link_name="${prefix}_finger_2_flex_finger"/>
 
     <!-- enable self collision -->
     <gazebo reference="${prefix}_bracket">
