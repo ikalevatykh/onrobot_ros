@@ -72,7 +72,7 @@ void GripperPlugin::OnUpdate()
     auto goal = action_server_->acceptNewGoal();
     command_position_ = goal->command.position;
     command_effort_ = goal->command.max_effort;
-    counter_ = int(monitor_rate_);
+    counter_ = int(monitor_rate_) * 2;
   }
 
   position_ = joints_[0]->Position(0);
